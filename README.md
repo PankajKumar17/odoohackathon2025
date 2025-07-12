@@ -5,6 +5,6 @@ email-pankajfriend17910@gmail.com
 team members
 Pankaj Kumar
 Subodh Kumar
-Mayank Singh
+Mayank Kumar Singh
 Pranav
 
