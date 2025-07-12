@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'dart:convert';
-import 'package:http/http.dart' as http;
 
 class AskQuestionScreen extends StatefulWidget {
-  const AskQuestionScreen({super.key});
+  final Function(Map<String, dynamic>) onQuestionPosted; // Callback to add question
+
+  const AskQuestionScreen({super.key, required this.onQuestionPosted});
 
   @override
-  State<AskQuestionScreen> createState() => _AskQuestionScreenState();
+  _AskQuestionScreenState createState() => _AskQuestionScreenState();
 }
 
 class _AskQuestionScreenState extends State<AskQuestionScreen> {
@@ -14,16 +14,11 @@ class _AskQuestionScreenState extends State<AskQuestionScreen> {
   final _descController = TextEditingController();
   final _tagsController = TextEditingController();
 
-  // Submit the question (send data to backend)
-  Future<void> _submitQuestion() async {
+  // Function to submit the question
+  void _submitQuestion() {
     final title = _titleController.text.trim();
     final description = _descController.text.trim();
     final tags = _tagsController.text.trim().split(',');
-    final questionUrl = "http://some-url.com"; // Replace with the appropriate value for the question URL
-    final user = {
-      'name': 'John Doe', // Add user information here (from authentication or local storage)
-      'email': 'john@example.com',
-    };
 
     if (title.isEmpty || description.isEmpty || tags.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -32,56 +27,29 @@ class _AskQuestionScreenState extends State<AskQuestionScreen> {
       return;
     }
 
-    final url = 'http://your-backend-url.com'; // Replace with your backend URL
-
-    // Create the request body
-    final body = json.encode({
-      'questionName': title,
-      'descreption': description,
+    // Create the new question map
+    final newQuestion = {
+      'id': DateTime.now().toString(), // Unique ID based on the time
+      'title': title,
+      'description': description,
       'tags': tags,
-      'questionUrl': questionUrl,
-      'user': user,
-    });
+      'answers': 0,
+      'user': 'Anonymous',
+      'upvotes': 0,
+      'downvotes': 0,
+    };
 
-    try {
-      // Send the POST request
-      final response = await http.post(
-        Uri.parse(url),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: body,
-      );
+    // Pass the new question to the parent widget
+    widget.onQuestionPosted(newQuestion);
 
-      // Check the response status
-      if (response.statusCode == 201) {
-        // Question added successfully
-        print("Question added successfully");
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Question added successfully")),
-        );
-      } else {
-        // Print the full response to get more insight into the failure
-        print("Failed to add question: ${response.statusCode}");
-        print("Response body: ${response.body}");
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Failed to add question: ${response.body}")),
-        );
-      }
-    } catch (error) {
-      print("Error occurred: $error");
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error occurred: $error")),
-      );
-    }
+    // Close the screen after submitting
+    Navigator.pop(context);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Ask a New Question"),
-      ),
+      appBar: AppBar(title: const Text("Ask a New Question")),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: ListView(

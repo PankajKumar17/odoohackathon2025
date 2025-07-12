@@ -10,7 +10,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  // Sample questions list with upvotes and downvotes
+  // Local list to store posted questions
   List<Map<String, dynamic>> sampleQuestions = [
     {
       'id': 'q1',
@@ -47,6 +47,14 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  // Function to handle adding a new question
+  void _addNewQuestion(Map<String, dynamic> newQuestion) {
+    setState(() {
+      // Add the new question to the list
+      sampleQuestions.add(newQuestion);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -60,10 +68,13 @@ class _HomeScreenState extends State<HomeScreen> {
               children: [
                 ElevatedButton.icon(
                   onPressed: () {
+                    // Navigate to the AskQuestionScreen to post a new question
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const AskQuestionScreen(),
+                        builder: (context) => AskQuestionScreen(
+                          onQuestionPosted: _addNewQuestion,
+                        ),
                       ),
                     );
                   },
